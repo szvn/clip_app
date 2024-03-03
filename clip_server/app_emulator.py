@@ -11,7 +11,7 @@ def send_request(images, labels):
         req["images"].append(encode_image(img))
     req["labels"] = labels
 
-    response = requests.post("http://127.0.0.1:5000/", json=req)
+    response = requests.post("http://192.168.2.42:5000/", json=req)
 
     print(response.json())
 

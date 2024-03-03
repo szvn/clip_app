@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify
 from PIL import Image
 import json
 from transformers import CLIPProcessor, CLIPModel
+from werkzeug.datastructures import ImmutableMultiDict
 
 from image_processor import decode_image
 
@@ -17,7 +18,7 @@ def run():
         "labels": ["list of labels"]
     }
 
-    data = json.loads(request.data)
+    data = request.json
 
     # get image data
     images = []
@@ -43,4 +44,4 @@ def run():
 
 
 if __name__ == "__main__":
-    app.run(port=5000, debug=True)
+    app.run(host='0.0.0.0', port=5000, debug=True)
