@@ -1,8 +1,6 @@
 from flask import Flask, request, jsonify
-from PIL import Image
-import json
+from flask_cors import CORS, cross_origin
 from transformers import CLIPProcessor, CLIPModel
-from werkzeug.datastructures import ImmutableMultiDict
 
 from image_processor import decode_image
 
@@ -10,11 +8,18 @@ app = Flask(__name__)
 model = CLIPModel.from_pretrained("openai/clip-vit-base-patch32")
 processor = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
 
-@app.route('/', methods=["POST"])
+CORS(app, supports_credentials=True)
+
+@app.route('/run/', methods=["POST", "OPTIONS"])
+@cross_origin(supports_credentials=True)
 def run():
+    if request.method == 'OPTIONS':
+        print("options request")
+        return '', 204
+    
     # this is what the request should look like:
     a = {
-        "images": ["list of base64 strings"],
+        "image": "list of base64 strings",
         "labels": ["list of labels"]
     }
 
@@ -22,8 +27,7 @@ def run():
 
     # get image data
     images = []
-    for b64 in data["images"]:
-        images.append(decode_image(b64))
+    images.append(decode_image(data["image"]))
     
     # get label data
     labels = data["labels"]
@@ -34,14 +38,21 @@ def run():
     logits_per_image = outputs.logits_per_image  # this is the image-text similarity score
     probabilities = logits_per_image.softmax(dim=1)  # we can take the softmax to get the label probabilities
 
-    probs = probabilities.tolist()
+    probabilities = probabilities.tolist()
+    probs = {}
+    for label_no in range(len(labels)):
+        probs[labels[label_no]] = probabilities[0][label_no]
+    
+    # Reverse the order of key-value pairs
+    final_probabilities = dict(list(probs.items())[::-1])
 
-    response = {
-        "probs": probs
-    }
+    response = jsonify(final_probabilities)
 
-    return jsonify(response)
+    print(response.data)
+
+    return response
 
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    app.run(port=5000, debug=True)
+    # app.run(ssl_context=('ssl/server.cert', 'ssl/server.key'), port=5000, debug=True)

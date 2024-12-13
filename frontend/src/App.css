@@ -1,0 +1,24 @@
+.App {
+  font-family: Arial, sans-serif;
+  padding: 20px;
+  max-width: 600px;
+  margin: auto;
+}
+
+input[type="file"] {
+  display: block;
+  margin-bottom: 10px;
+}
+
+input[type="text"] {
+  display: block;
+  margin: 5px 0;
+}
+
+button {
+  margin: 5px;
+}
+
+canvas {
+  margin-top: 20px;
+}
