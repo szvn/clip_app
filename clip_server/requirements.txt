@@ -91,7 +91,8 @@ Pygments==2.17.2
 pyparsing==3.0.6
 python-dateutil==2.8.2
 python-json-logger==2.0.7
-pywin32==306
+# Install pywin32 only for Windows environment
+pywin32; platform_system == "Windows"
 pywinpty==1.1.6
 PyYAML==6.0.1
 pyzmq==25.1.2
