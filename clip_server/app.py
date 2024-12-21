@@ -54,5 +54,5 @@ def run():
 
 
 if __name__ == "__main__":
-    app.run(port=5000, debug=True)
+    app.run(port=8080, debug=True)
     # app.run(ssl_context=('ssl/server.cert', 'ssl/server.key'), port=5000, debug=True)
