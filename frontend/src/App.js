@@ -14,7 +14,7 @@ function App() {
     try {
       const auth = new GoogleAuth();
       const client = await auth.getClient(); // Get the client for auth
-      const targetAudience = process.env.REACT_APP_API_URL || 'http://localhost:5000'; // Backend URL
+      const targetAudience = process.env.REACT_APP_API_URL || 'http://localhost:8080/run/'; // Backend URL
       const idToken = await client.fetchIdToken(targetAudience); // Fetch the identity token
       return idToken;
     } catch (error) {
