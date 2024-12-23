@@ -1,26 +1,34 @@
 import React, { useState, useRef, useEffect } from 'react';
 import axiosInstance from './axiosConfig';
 import Chart from 'chart.js/auto';
-import {
-  Button,
-  TextField,
-  Container,
-  Typography,
-  Box,
-  Stack,
-} from '@mui/material';
+import { Button, TextField, Container, Typography, Box, Stack } from '@mui/material';
+import { GoogleAuth } from 'google-auth-library'; // Import GoogleAuth library
 
 function App() {
   const [image, setImage] = useState(null);
   const [textFields, setTextFields] = useState(['']);
   const [chartData, setChartData] = useState(null);
 
+  // Function to fetch the identity token
+  const getIdToken = async () => {
+    try {
+      const auth = new GoogleAuth();
+      const client = await auth.getClient(); // Get the client for auth
+      const targetAudience = process.env.REACT_APP_API_URL || 'http://localhost:5000'; // Backend URL
+      const idToken = await client.fetchIdToken(targetAudience); // Fetch the identity token
+      return idToken;
+    } catch (error) {
+      console.error('Error fetching identity token:', error);
+      return null;
+    }
+  };
+
   const handleImageUpload = (event) => {
     const file = event.target.files[0];
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        setImage(reader.result.split(',')[1]);
+        setImage(reader.result.split(',')[1]); // Store the image base64 data
       };
       reader.readAsDataURL(file);
     }
@@ -43,7 +51,18 @@ function App() {
     };
 
     try {
-      const response = await axiosInstance.post('/', payload);
+      // Fetch the identity token before making the request
+      const idToken = await getIdToken();
+      if (!idToken) {
+        console.error('Unable to fetch identity token');
+        return;
+      }
+
+      const response = await axiosInstance.post('/', payload, {
+        headers: {
+          Authorization: `Bearer ${idToken}`, // Add the identity token to the Authorization header
+        },
+      });
       setChartData(response.data);
     } catch (error) {
       console.error('Error submitting data:', error);
